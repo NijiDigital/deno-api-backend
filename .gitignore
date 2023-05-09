@@ -1,0 +1,9 @@
+# IDE custom settings
+/.idea/
+/.vscode/
+
+# Temp files
+/tmp/
+
+# Local environment
+/.scannerwork

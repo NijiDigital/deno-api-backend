@@ -1,0 +1,10 @@
+{
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true
+  },
+  "tasks": {
+    "dev": "deno run --watch --allow-env --allow-net index.ts",
+    "start": "deno run --allow-net index.ts"
+  }
+}
