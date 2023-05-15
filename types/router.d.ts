@@ -1,4 +1,4 @@
-import type { ConnInfo } from '../deps.ts'
+import type { ConnInfo, Handler } from '../deps.ts'
 import type { JSONValue } from './json.d.ts'
 
 export type HttpMethod =
@@ -32,3 +32,7 @@ export type RouteHandler = (
   connInfo: ConnInfo,
   options: { pattern?: URLPatternResult },
 ) => RouteHandlerResult
+
+export type RouterOptions = {
+  notFound?: Handler
+}
