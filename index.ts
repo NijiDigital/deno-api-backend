@@ -3,7 +3,7 @@ import type { Route } from './types/router.d.ts'
 import { serve } from './deps.ts'
 import { createRouteMatcher } from './http/route_matcher.ts'
 import { addTask, getTasks } from './model/task.ts'
-import { asPromise } from './utils/helper.ts'
+import { createRouteHandler } from './http/route_handler.ts'
 
 const routes: Route[] = [{
   matcher: createRouteMatcher({ method: 'GET', path: '/tasks' }),
@@ -16,17 +16,6 @@ const routes: Route[] = [{
   },
 }]
 
-await serve(async (req, connInfo) => {
-  for (const route of routes) {
-    const urlPatternResult = route.matcher(req)
-    if (urlPatternResult) {
-      const result = await asPromise(
-        route.handler(req, connInfo, { pattern: urlPatternResult }),
-      )
-      return result instanceof Response ? result : Response.json(result)
-    }
-  }
-  return Response.json({ message: 'Resource not found' }, {
-    status: 404,
-  })
-}, { port: 8000 })
+const handler = createRouteHandler(routes)
+
+await serve(handler, { port: 8000 })
