@@ -10,6 +10,21 @@ export type HttpMethod =
   | 'POST'
   | 'PUT'
 
+export type HttpMethodFunc = (
+  path: string,
+  routeHandler: RouteHandler,
+) => Router
+
+export type HttpMethodProvider = {
+  delete: HttpMethodFunc
+  get: HttpMethodFunc
+  head: HttpMethodFunc
+  options: HttpMethodFunc
+  patch: HttpMethodFunc
+  post: HttpMethodFunc
+  put: HttpMethodFunc
+}
+
 export type Route = {
   matcher: RequestMatcher
   handler: RouteHandler
@@ -36,3 +51,8 @@ export type RouteHandler = (
 export type RouterOptions = {
   notFound?: Handler
 }
+
+export type Router = {
+  register: (method: HttpMethod, path: string, handler: RouteHandler) => void
+  toHandler: () => Handler
+} & HttpMethodProvider
