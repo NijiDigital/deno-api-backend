@@ -1,57 +1,70 @@
 import type { TaskPayload } from './model/task.ts'
-import type { Route } from './types/router.d.ts'
 import { serve } from './deps.ts'
-import { createRouteMatcher } from './http/route_matcher.ts'
 import {
   addTask,
   clearTasks,
   getTask,
   getTasks,
   removeTask,
+  setTask,
+  updateTask,
 } from './model/task.ts'
-import { createRouteHandler } from './http/route_handler.ts'
+import { createRouter } from './http/router.ts'
+import {routeServe} from "./http/route_server.ts";
 
 const notFoundResponse = Response.json({ message: 'Task not found' }, {
   status: 404,
 })
 
-const routes: Route[] = [{
-  matcher: createRouteMatcher({ method: 'GET', path: '/tasks' }),
-  handler: () => getTasks(),
-}, {
-  matcher: createRouteMatcher({ method: 'POST', path: '/tasks' }),
-  handler: async (req) => {
+const router = createRouter()
+  .get('/tasks', () => getTasks())
+  .post('/tasks', async (req) => {
     const taskPayload: TaskPayload = await req.json()
     return addTask(taskPayload)
-  },
-}, {
-  matcher: createRouteMatcher({ method: 'GET', path: '/tasks/:id' }),
-  handler: (_req, _connInfo, { pattern }) => {
+  })
+  .get('/tasks/:id', (_req, _connInfo, { pattern }) => {
     const id = pattern?.pathname.groups.id
     const task = id && getTask(id)
     if (!task) {
       return notFoundResponse
     }
     return task
-  },
-}, {
-  matcher: createRouteMatcher({ method: 'DELETE', path: '/tasks/:id' }),
-  handler: (_req, _connInfo, { pattern }) => {
+  })
+  .delete('/tasks/:id', (_req, _connInfo, { pattern }) => {
     const id = pattern?.pathname.groups.id
     const removed = id && removeTask(id)
     if (!removed) {
       return notFoundResponse
     }
     return new Response(undefined, { status: 204 })
-  },
-}, {
-  matcher: createRouteMatcher({ method: 'DELETE', path: '/tasks' }),
-  handler: () => {
+  })
+  .delete('/tasks', () => {
     clearTasks()
     return new Response(undefined, { status: 204 })
-  },
-}]
+  })
+  .put('/tasks/:id', async (req, _connInfo, { pattern }) => {
+    const id = pattern?.pathname.groups.id
+    if (!id) {
+      return notFoundResponse
+    }
+    const taskPayload: TaskPayload = await req.json()
+    const task = setTask(id || '', taskPayload)
+    if (!task) {
+      return notFoundResponse
+    }
+    return task
+  })
+  .patch('/tasks/:id', async (req, _connInfo, { pattern }) => {
+    const id = pattern?.pathname.groups.id
+    if (!id) {
+      return notFoundResponse
+    }
+    const taskPayload: TaskPayload = await req.json()
+    const task = updateTask(id, taskPayload)
+    if (!task) {
+      return notFoundResponse
+    }
+    return task
+  })
 
-const handler = createRouteHandler(routes)
-
-await serve(handler, { port: 8000 })
+await routeServe(router, { port: 8000 })
