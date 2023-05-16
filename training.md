@@ -3,8 +3,6 @@
 Réaliser un serveur backend API minimum, avec :
 - Une route GET /tasks qui retourne la liste des tâches
 
-La liste des tâches peut est un simple tableau en mémoire.
-
 ### Étape 2
 
 Implémenter la route POST /tasks pour ajouter une tâche à la liste.
